@@ -9,7 +9,7 @@ load_dotenv()
 
 CABECALHO = ['Data da Análise', 'Nome do Teste', 'Parceiro', 'Variante Vencedora', 'Significância Estatística', 'P-Value']
 
-class TrackingClient:
+class ClienteRastreamento:
     def __init__(self, caminho_csv_fallback='data/historico_testes.csv'):
         self.caminho_csv_fallback = caminho_csv_fallback
         self.usar_sheets = False

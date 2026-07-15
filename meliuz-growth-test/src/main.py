@@ -1,8 +1,9 @@
 import argparse
 import os
 from data_processor import carregar_e_processar_dados
-from ai_analyzer import ABTestAnalyzer
-from sheets_client import TrackingClient
+from ai_analyzer import AnalisadorTesteAB
+from gerador_relatorio import GeradorRelatorio
+from sheets_client import ClienteRastreamento
 
 def main():
     analisador_argumentos = argparse.ArgumentParser(description="Analisador de Testes A/B AI-Native - Growth Méliuz")
@@ -22,8 +23,11 @@ def main():
     nome_parceiro = df['Parceiro'].iloc[0]
     
     print("2. Rodando testes estatísticos...")
-    analisador = ABTestAnalyzer(df)
-    relatorio_md, vencedor, resultado_lucro = analisador.gerar_relatorio()
+    analisador = AnalisadorTesteAB(df)
+    vencedor, resultado_lucro, df_resumo = analisador.analisar_e_resumir()
+    
+    print("3. Gerando relatório Markdown...")
+    relatorio_md = GeradorRelatorio.gerar_markdown(nome_parceiro, resultado_lucro, df_resumo)
     
     os.makedirs('reports', exist_ok=True)
     nome_arquivo_relatorio = f"reports/relatorio_ab_teste_{nome_parceiro.replace(' ', '_')}.md"
@@ -31,8 +35,8 @@ def main():
         f.write(relatorio_md)
     print(f"-> Relatório gerado com sucesso: {nome_arquivo_relatorio}")
     
-    print("3. Atualizando tracking (histórico)...")
-    rastreador = TrackingClient()
+    print("4. Atualizando tracking (histórico)...")
+    rastreador = ClienteRastreamento()
     nome_teste = f"Otimização de Cashback - {nome_parceiro}"
     rastreador.registrar_resultado(nome_teste, nome_parceiro, vencedor, resultado_lucro)
     
