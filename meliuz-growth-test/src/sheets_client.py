@@ -36,6 +36,8 @@ class ClienteRastreamento:
             except Exception as e:
                 logger.warning(f"Falha ao conectar no Google Sheets: {e}. Usando fallback para CSV.")
                 self.usar_sheets = False
+        else:
+            logger.warning("Credenciais ou URL da planilha ausentes no .env. Executando em modo offline (apenas CSV).")
                 
     def registrar_resultado(self, nome_teste, parceiro, vencedor, resultado_lucro):
         str_data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
