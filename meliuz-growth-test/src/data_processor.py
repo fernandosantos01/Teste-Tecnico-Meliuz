@@ -9,7 +9,7 @@ def limpar_coluna_financeira(serie):
         
     return pd.to_numeric(serie, errors='coerce')
 
-def carregar_e_processar_dados(caminho_arquivo):
+def carregar_csv(caminho_arquivo):
     try:
         df = pd.read_csv(caminho_arquivo)
     except Exception as e:
@@ -19,31 +19,46 @@ def carregar_e_processar_dados(caminho_arquivo):
     for coluna in colunas_obrigatorias:
         if coluna not in df.columns:
             raise ValueError(f"Coluna obrigatória ausente: {coluna}")
+            
+    return df
 
-    df['Data'] = pd.to_datetime(df['Data'], errors='coerce')
+def limpar_dataframe(df):
+    df_limpo = df.copy()
+    df_limpo['Data'] = pd.to_datetime(df_limpo['Data'], errors='coerce')
     
     for coluna in ['comissão', 'cashback', 'vendas totais']:
-        df[coluna] = limpar_coluna_financeira(df[coluna])
+        df_limpo[coluna] = limpar_coluna_financeira(df_limpo[coluna])
         
-    df = df.dropna(subset=['compradores', 'comissão', 'cashback', 'vendas totais'])
+    df_limpo = df_limpo.dropna(subset=['compradores', 'comissão', 'cashback', 'vendas totais'])
+    df_limpo['compradores'] = df_limpo['compradores'].astype(int)
     
-    df['compradores'] = df['compradores'].astype(int)
+    return df_limpo
+
+def calcular_metricas_derivadas(df):
+    df_metricas = df.copy()
     
-    df['Lucro'] = df['comissão'] - df['cashback']
+    df_metricas['Lucro'] = df_metricas['comissão'] - df_metricas['cashback']
     
-    df['Ticket Médio'] = np.where(df['compradores'] > 0, 
-                                  df['vendas totais'] / df['compradores'], 
-                                  0)
+    df_metricas['Ticket Médio'] = np.where(df_metricas['compradores'] > 0, 
+                                           df_metricas['vendas totais'] / df_metricas['compradores'], 
+                                           0)
     
-    df['Lucro por Comprador'] = np.where(df['compradores'] > 0, 
-                                         df['Lucro'] / df['compradores'], 
-                                         0)
+    df_metricas['Lucro por Comprador'] = np.where(df_metricas['compradores'] > 0, 
+                                                  df_metricas['Lucro'] / df_metricas['compradores'], 
+                                                  0)
                                          
-    df['ROI'] = np.where(df['cashback'] > 0, 
-                         df['Lucro'] / df['cashback'], 
-                         0)
-                         
-    return df
+    df_metricas['ROI'] = np.where(df_metricas['cashback'] > 0, 
+                                  df_metricas['Lucro'] / df_metricas['cashback'], 
+                                  0)
+                                  
+    return df_metricas
+
+def carregar_e_processar_dados(caminho_arquivo):
+    df_bruto = carregar_csv(caminho_arquivo)
+    df_limpo = limpar_dataframe(df_bruto)
+    df_final = calcular_metricas_derivadas(df_limpo)
+    
+    return df_final
 
 if __name__ == "__main__":
     import sys
