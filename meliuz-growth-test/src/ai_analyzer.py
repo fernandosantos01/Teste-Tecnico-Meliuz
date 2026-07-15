@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from scipy import stats
+from formatador import FormatadorApresentacao
 
 class ABTestAnalyzer:
     def __init__(self, df):
@@ -45,6 +46,7 @@ class ABTestAnalyzer:
         resultado_lucro = self.analisar_metrica('Lucro')
         
         df_resumo = self.obter_resumo()
+        df_resumo_formatado = FormatadorApresentacao.formatar_tabela_resumo(df_resumo)
         
         if resultado_lucro['eh_significativo']:
             recomendacao = f"**Escalar o {resultado_lucro['melhor_grupo']} para 100% do tráfego.** O teste apresentou significância estatística (p-value: {resultado_lucro['valor_p']:.4f}) indicando que este grupo gera o maior Lucro diário médio."
@@ -59,12 +61,12 @@ class ABTestAnalyzer:
         
         relatorio += "## Resumo de Performance por Grupo\n"
         
-        relatorio += df_resumo.to_markdown(index=False, floatfmt=".2f")
+        relatorio += df_resumo_formatado.to_markdown(index=False)
         relatorio += "\n\n"
         
         relatorio += "## Detalhes Estatísticos (Métrica: Lucro Diário)\n"
         for grupo, valor_medio in resultado_lucro['medias'].items():
-            relatorio += f"- **{grupo}**: R$ {valor_medio:.2f} médio por dia\n"
+            relatorio += f"- **{grupo}**: {FormatadorApresentacao.moeda(valor_medio)} médio por dia\n"
         relatorio += f"\n- **P-Value (ANOVA)**: {resultado_lucro['valor_p']:.4f}\n"
         relatorio += f"- **Significância**: {'Sim (Confiança > 95%)' if resultado_lucro['eh_significativo'] else 'Não'}\n"
         
