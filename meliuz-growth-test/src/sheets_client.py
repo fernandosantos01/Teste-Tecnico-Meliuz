@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+CABECALHO = ['Data da Análise', 'Nome do Teste', 'Parceiro', 'Variante Vencedora', 'Significância Estatística', 'P-Value']
+
 class TrackingClient:
     def __init__(self, caminho_csv_fallback='data/historico_testes.csv'):
         self.caminho_csv_fallback = caminho_csv_fallback
@@ -22,6 +24,11 @@ class TrackingClient:
                 cliente = gspread.authorize(credenciais)
                 self.planilha = cliente.open_by_url(self.url_planilha).sheet1
                 self.usar_sheets = True
+                
+                dados = self.planilha.get_all_values()
+                if not dados or dados[0][0] != 'Data da Análise':
+                    self.planilha.insert_row(CABECALHO, index=1)
+                    
                 print("Conectado ao Google Sheets com sucesso.")
             except Exception as e:
                 print(f"Aviso: Falha ao conectar no Google Sheets: {e}. Usando fallback para CSV.")
@@ -47,7 +54,7 @@ class TrackingClient:
         with open(self.caminho_csv_fallback, mode='a', newline='', encoding='utf-8') as f:
             escritor = csv.writer(f)
             if not arquivo_existe:
-                escritor.writerow(['Data da Análise', 'Nome do Teste', 'Parceiro', 'Variante Vencedora', 'Significância Estatística', 'P-Value'])
+                escritor.writerow(CABECALHO)
             escritor.writerow(linha)
             
         print(f"Resultado registrado localmente em: {self.caminho_csv_fallback}")
