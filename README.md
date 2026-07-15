@@ -1,5 +1,9 @@
 # Méliuz Growth AI-Native — Analisador de Testes A/B
 
+[![Repositório GitHub](https://img.shields.io/badge/GitHub-Repositório_Oficial-181717?style=for-the-badge&logo=github)](https://github.com/fernandosantos01/Teste-Tecnico-Meliuz)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
+[![Google Sheets API](https://img.shields.io/badge/Google_Sheets-API-34A853?style=for-the-badge&logo=google-sheets&logoColor=white)]()
+
 Solução automatizada, parametrizada e robusta para análise de testes A/B de cashback, desenvolvida para o Teste Técnico da vaga de Estágio de Operações Integradas.
 
 ---
@@ -46,7 +50,7 @@ meliuz-growth-test/
 Clone o repositório e instale as dependências dentro de um ambiente virtual:
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/fernandosantos01/Teste-Tecnico-Meliuz.git
 cd meliuz-growth-test
 python3 -m venv venv
 source venv/bin/activate
