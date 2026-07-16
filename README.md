@@ -39,16 +39,25 @@ A planilha do Google Sheets integrada a esta aplicação, onde as decisões fina
 ```
 meliuz-growth-test/
 │
-├── data/                    # Datasets CSV brutos dos parceiros
-│   └── historico_testes.csv # Registro local de fallback (gerado automaticamente)
-├── reports/                 # Relatórios Markdown gerados após cada análise
+├── data/                      # Datasets CSV brutos (Parceiros A, B, C)
+│   └── historico_testes.csv   # Cache local para a Sincronização Offline
+├── reports/                   # Relatórios finais em Markdown (Decisões Acionáveis)
 ├── src/
-│   ├── main.py              # Orquestrador principal (ponto de entrada)
-│   ├── data_processor.py    # Limpeza de dados e cálculo de métricas derivadas
-│   ├── ai_analyzer.py       # Motor estatístico (ANOVA) e geração de relatório
-│   └── sheets_client.py     # Integração com a Google Sheets API
-├── .env                     # Variáveis de ambiente (não versionado)
-└── requirements.txt         # Dependências do projeto
+│   ├── main.py                # Orquestrador
+│   ├── data_processor.py      # Tratamento de dados "sujos" e matemática de negócio
+│   ├── ai_analyzer.py         # Motor de inteligência estatística
+│   ├── gerador_relatorio.py   # Motor de Apresentação
+│   ├── formatador.py          # Micro-utilitário de máscaras financeiras (R$ e %)
+│   ├── logger_config.py       # Logs padronizados para Monitoramento
+│   └── sheets_client.py       # Integração Sheets
+├── tests/                     # Suíte de Qualidade (QA) utilizando Pytest
+│   ├── test_formatador.py     
+│   ├── test_data_processor.py 
+│   ├── test_ai_analyzer.py    
+│   └── test_sheets_client.py  # Cobertura de Testes com Mocks
+├── .env.example               # Template de variáveis
+├── .env                       # Chaves reais (Omitido por segurança)
+└── requirements.txt           # Lista exata de dependências do projeto
 ```
 
 ---
