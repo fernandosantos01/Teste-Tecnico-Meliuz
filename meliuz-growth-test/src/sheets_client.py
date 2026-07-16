@@ -10,7 +10,7 @@ load_dotenv()
 
 logger = get_logger(__name__)
 
-CABECALHO = ['Data da Análise', 'Nome do Teste', 'Parceiro', 'Variante Vencedora', 'Significância Estatística', 'P-Value']
+CABECALHO = ['Data da Análise', 'Nome do Teste', 'Descrição', 'Resultado', 'Decisão Tomada']
 
 class ClienteRastreamento:
     def __init__(self, caminho_csv_fallback='data/historico_testes.csv'):
@@ -29,7 +29,7 @@ class ClienteRastreamento:
                 self.usar_sheets = True
                 
                 dados = self.planilha.get_all_values()
-                if not dados or dados[0][0] != 'Data da Análise':
+                if not dados or not dados[0] or dados[0][0] != 'Data da Análise':
                     self.planilha.insert_row(CABECALHO, index=1)
                     
                 logger.info("Conectado ao Google Sheets com sucesso.")
@@ -41,10 +41,12 @@ class ClienteRastreamento:
                 
     def registrar_resultado(self, nome_teste, parceiro, vencedor, resultado_lucro):
         str_data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        eh_significativo = 'Sim' if resultado_lucro['eh_significativo'] else 'Não'
-        valor_p = f"{resultado_lucro['valor_p']:.4f}"
+        descricao = f"Avaliação de performance de cashback para {parceiro}"
+        str_significancia = "Significativo" if resultado_lucro['eh_significativo'] else "Não Significativo"
+        resultado_str = f"P-Value: {resultado_lucro['valor_p']:.4f} ({str_significancia})"
+        decisao = f"Escalar {vencedor} para 100% do tráfego" if vencedor != "Inconclusivo" else "Nenhuma variante venceu. Manter o cenário atual."
         
-        linha = [str_data, nome_teste, parceiro, vencedor, eh_significativo, valor_p]
+        linha = [str_data, nome_teste, descricao, resultado_str, decisao]
         
         if self.usar_sheets:
             try:
