@@ -33,6 +33,7 @@ class ClienteRastreamento:
                     self.planilha.insert_row(CABECALHO, index=1)
                     
                 logger.info("Conectado ao Google Sheets com sucesso.")
+                self.sincronizar_offline()
             except Exception as e:
                 logger.warning(f"Falha ao conectar no Google Sheets: {e}. Usando fallback para CSV.")
                 self.usar_sheets = False
@@ -65,3 +66,21 @@ class ClienteRastreamento:
             escritor.writerow(linha)
             
         logger.info(f"Resultado registrado localmente em: {self.caminho_csv_fallback}")
+
+    def sincronizar_offline(self):
+        if not os.path.isfile(self.caminho_csv_fallback):
+            return
+            
+        try:
+            with open(self.caminho_csv_fallback, mode='r', encoding='utf-8') as f:
+                leitor = csv.reader(f)
+                linhas = list(leitor)
+                
+            if len(linhas) > 1: 
+                dados_para_subir = linhas[1:]
+                self.planilha.append_rows(dados_para_subir)
+                logger.info(f"{len(dados_para_subir)} registro(s) offline sincronizado(s) e subido(s) para o Google Sheets com sucesso!")
+            
+            os.remove(self.caminho_csv_fallback)
+        except Exception as e:
+            logger.error(f"Erro ao tentar sincronizar dados offline: {e}")
