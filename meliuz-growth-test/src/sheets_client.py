@@ -10,7 +10,7 @@ load_dotenv()
 
 logger = get_logger(__name__)
 
-CABECALHO = ['Data da Análise', 'Nome do Teste', 'Parceiro', 'Variante Vencedora', 'Significância Estatística', 'P-Value']
+CABECALHO = ['Data da Análise', 'Nome do Teste', 'Descrição', 'Resultado', 'Decisão Tomada']
 
 class ClienteRastreamento:
     def __init__(self, caminho_csv_fallback='data/historico_testes.csv'):
@@ -29,10 +29,11 @@ class ClienteRastreamento:
                 self.usar_sheets = True
                 
                 dados = self.planilha.get_all_values()
-                if not dados or dados[0][0] != 'Data da Análise':
+                if not dados or not dados[0] or dados[0][0] != 'Data da Análise':
                     self.planilha.insert_row(CABECALHO, index=1)
                     
                 logger.info("Conectado ao Google Sheets com sucesso.")
+                self.sincronizar_offline()
             except Exception as e:
                 logger.warning(f"Falha ao conectar no Google Sheets: {e}. Usando fallback para CSV.")
                 self.usar_sheets = False
@@ -41,10 +42,12 @@ class ClienteRastreamento:
                 
     def registrar_resultado(self, nome_teste, parceiro, vencedor, resultado_lucro):
         str_data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        eh_significativo = 'Sim' if resultado_lucro['eh_significativo'] else 'Não'
-        valor_p = f"{resultado_lucro['valor_p']:.4f}"
+        descricao = f"Avaliação de performance de cashback para {parceiro}"
+        str_significancia = "Significativo" if resultado_lucro['eh_significativo'] else "Não Significativo"
+        resultado_str = f"P-Value: {resultado_lucro['valor_p']:.4f} ({str_significancia})"
+        decisao = f"Escalar {vencedor} para 100% do tráfego" if vencedor != "Inconclusivo" else "Nenhuma variante venceu. Manter o cenário atual."
         
-        linha = [str_data, nome_teste, parceiro, vencedor, eh_significativo, valor_p]
+        linha = [str_data, nome_teste, descricao, resultado_str, decisao]
         
         if self.usar_sheets:
             try:
@@ -63,3 +66,21 @@ class ClienteRastreamento:
             escritor.writerow(linha)
             
         logger.info(f"Resultado registrado localmente em: {self.caminho_csv_fallback}")
+
+    def sincronizar_offline(self):
+        if not os.path.isfile(self.caminho_csv_fallback):
+            return
+            
+        try:
+            with open(self.caminho_csv_fallback, mode='r', encoding='utf-8') as f:
+                leitor = csv.reader(f)
+                linhas = list(leitor)
+                
+            if len(linhas) > 1: 
+                dados_para_subir = linhas[1:]
+                self.planilha.append_rows(dados_para_subir)
+                logger.info(f"{len(dados_para_subir)} registro(s) offline sincronizado(s) e subido(s) para o Google Sheets com sucesso!")
+            
+            os.remove(self.caminho_csv_fallback)
+        except Exception as e:
+            logger.error(f"Erro ao tentar sincronizar dados offline: {e}")
