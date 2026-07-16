@@ -143,10 +143,24 @@ Análise concluída com sucesso! Verifique a pasta 'reports' para mais detalhes.
 
 O script é flexível e parametrizado. Isso significa que, se a Méliuz expandir a operação e novos parceiros ou datasets surgirem no futuro, basta passá-los como argumento (`--file`) sem precisar alterar nenhuma linha de código da aplicação!
 
+### Processamento em Lote (Batch Processing)
+
+Se houverem dezenas de datasets na pasta `data/` e você desejar executar as análises e subir todas elas para o Sheets de uma única vez, você pode utilizar o seguinte laço de repetição (`for`) no seu terminal:
+
+```bash
+for arquivo in data/dataset_*.csv; do PYTHONPATH=src python src/main.py --file "$arquivo"; done
+```
+
+Esse comando garante que todos os arquivos com o padrão `dataset_*.csv` serão processados sequencialmente, populando todos os relatórios e a planilha em poucos segundos.
+
 ---
 
 ## Workflow AI-Native
 
-A arquitetura foi projetada para ser operada por uma Inteligência Artificial. Um analista não-técnico pode usar o seguinte prompt no Cursor, Claude ou Gemini para executar toda a pipeline:
+A arquitetura foi projetada para ser operada por uma Inteligência Artificial. Um analista não-técnico pode usar os seguintes prompts no Cursor, Claude ou Gemini para executar toda a pipeline sem tocar em código:
 
+**Para um único teste:**
 > "Analise o novo dataset anexado utilizando a solução de testes A/B da pasta `src/`. Mova o arquivo recebido para a pasta `data/` e em seguida rode o comando `PYTHONPATH=src python src/main.py --file data/[NOME_DO_ARQUIVO].csv`. Ao finalizar, me retorne um resumo do arquivo `.md` gerado na pasta `reports/`, focando exclusivamente em qual variante devemos escalar para 100% do tráfego."
+
+**Para processamento em lote (Múltiplos testes):**
+> "Mova os 3 novos arquivos CSV anexados para a pasta `data/`. Em seguida, rode o comando `for arquivo in data/dataset_*.csv; do PYTHONPATH=src python src/main.py --file "$arquivo"; done` no terminal. Após a execução, leia todos os relatórios gerados na pasta `reports/` e construa uma tabela comparativa me informando qual foi a decisão acionável tomada para cada um dos parceiros."
