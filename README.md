@@ -8,6 +8,14 @@ Solução automatizada, parametrizada e robusta para análise de testes A/B de c
 
 ---
 
+## Acesso aos Resultados (Planilha de Acompanhamento)
+
+A planilha do Google Sheets integrada a esta aplicação, onde as decisões finais estatísticas são registradas em tempo real, pode ser acessada (modo leitura) pelo recrutador através do link abaixo:
+
+**[Acessar Planilha de Acompanhamento (Google Sheets)](https://docs.google.com/spreadsheets/d/1upEL0kFe6n_0Bo4HQJMIYijBJ9J3PBLX1OXRtt-sh6s/edit?usp=sharing)**
+
+---
+
 ## O que essa solução faz?
 
 1. **Robustez na Limpeza:** Lê nativamente dados CSV "sujos" de testes A/B financeiros, com tratamento avançado por Regex para não quebrar independente da formatação do valor monetário (R$, pontos, espaços extras). Valores nulos e datas corrompidas são descartados silenciosamente sem interromper a execução.
@@ -124,12 +132,7 @@ Resultado registrado no Google Sheets: <url-da-sua-planilha>
 Análise concluída com sucesso! Verifique a pasta 'reports' para mais detalhes.
 ```
 
-O script é parametrizado e funciona para qualquer parceiro sem alteração de código. Basta trocar o arquivo:
-
-```bash
-PYTHONPATH=src python src/main.py --file data/dataset_02_parceiroB.csv
-PYTHONPATH=src python src/main.py --file data/dataset_03_parceiroC.csv
-```
+O script é flexível e parametrizado. Isso significa que, se a Méliuz expandir a operação e novos parceiros ou datasets surgirem no futuro, basta passá-los como argumento (`--file`) sem precisar alterar nenhuma linha de código da aplicação!
 
 ---
 
